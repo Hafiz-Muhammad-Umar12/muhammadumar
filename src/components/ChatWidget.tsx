@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaRobot, FaPaperPlane, FaTimes, FaComment } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 type Msg = {
   id: string;
@@ -11,11 +12,12 @@ type Msg = {
   createdAt: number;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SYSTEM_PROMPT =
   "You are an expert Agentic AI developer assistant. Be concise, helpful, and suggest actionable next steps. Use short, elegant language.";
 
 export default function ChatWidget() {
+  const router = useRouter();
+
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Msg[]>([
@@ -32,18 +34,41 @@ export default function ChatWidget() {
 
   const genId = (prefix = "") => `${prefix}${Date.now()}-${Math.random()}`;
 
-  // Auto hide greeting after few seconds
+  // Auto hide greeting
   useEffect(() => {
     const timer = setTimeout(() => setShowGreeting(false), 6000);
     return () => clearTimeout(timer);
   }, []);
 
+  // Scroll to bottom when messages update
   useEffect(() => {
     if (scrollRef.current)
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, open]);
 
-  // 🧠 Send Message to FastAPI Backend
+  // SSE: Listen to backend events
+  useEffect(() => {
+    const evtSource = new EventSource(
+      "https://muhammadumar-backend.vercel.app/"
+    );
+
+    evtSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.action === "show_categories") {
+          router.push("/categories");
+        }
+      } catch (err) {
+        console.error("SSE parse error:", err);
+      }
+    };
+
+    return () => {
+      evtSource.close();
+    };
+  }, [router]);
+
+  // Send Message to FastAPI backend
   const handleSend = async (promptText?: string) => {
     const text = (promptText ?? input).trim();
     if (!text) return;
@@ -102,7 +127,7 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* ✅ Greeting Popup (like the screenshot) */}
+      {/* Greeting Popup */}
       <AnimatePresence>
         {showGreeting && !open && (
           <motion.div
