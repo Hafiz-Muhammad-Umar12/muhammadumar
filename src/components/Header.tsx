@@ -14,7 +14,7 @@ const navLinks = [
   { name: "Contact", href: "#contact" },
 ];
 
-export default function Header() {
+ export default function Header() {
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
