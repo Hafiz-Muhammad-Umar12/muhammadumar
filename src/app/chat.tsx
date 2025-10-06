@@ -52,6 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const reply = data?.choices?.[0]?.message?.content ?? "Sorry, I couldn't generate a response.";
 
     return res.status(200).json({ reply });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error("Server error in /api/chat", err);
     return res.status(500).json({ error: err.message ?? "Server error" });

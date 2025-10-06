@@ -11,6 +11,7 @@ type Msg = {
   createdAt: number;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SYSTEM_PROMPT =
   "You are an expert Agentic AI developer assistant. Be concise, helpful, and suggest actionable next steps. Use short, elegant language.";
 
